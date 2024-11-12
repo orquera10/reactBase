@@ -62,8 +62,8 @@ const UserList = ({
               <strong>DNI:</strong> {user.dni} <br />
             </div>
             <div className="col-6 d-flex align-items-center">
-              <strong className="h4 text-success">Ficha:</strong>{" "}
-              <span className="h4 text-success">{user.ficha} </span>
+              <strong className="h4 text-success">Ficha: <span className="h4 text-success"> {user.ficha} </span></strong>
+              
             </div>
           </div>
         )}
