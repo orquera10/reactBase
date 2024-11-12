@@ -35,7 +35,11 @@ const CrudApp = () => {
   const validateFields = (user) => {
     const newErrors = {};
     if (!user.name.trim()) newErrors.name = 'El nombre es obligatorio.';
-    if (!user.dni.trim()) newErrors.dni = 'El DNI es obligatorio.';
+    if (!user.dni.trim()) {
+      newErrors.dni = 'El DNI es obligatorio.';
+    } else if (isNaN(user.dni)) {
+      newErrors.dni = 'El DNI debe ser numérico.';
+    }
     if (!user.ficha.trim()) {
       newErrors.ficha = 'El número de ficha es obligatorio.';
     } else if (isNaN(user.ficha)) {
@@ -44,22 +48,26 @@ const CrudApp = () => {
     return newErrors;
   };
 
-  // Verificar si el DNI o la ficha ya están registrados
-  const checkIfExists = async (dni, ficha, excludeId = null) => {
-    const qDni = query(usersCollection, where("dni", "==", dni));
-    const qFicha = query(usersCollection, where("ficha", "==", ficha));
+  const checkIfFichaExists = async (ficha, excludeId = null) => {
+    const qFicha = query(usersCollection, where('ficha', '==', ficha));
+    const fichaSnapshot = await getDocs(qFicha);
 
-    const [dniSnapshot, fichaSnapshot] = await Promise.all([getDocs(qDni), getDocs(qFicha)]);
-
-    // Si existe algún usuario con el DNI o la ficha, y no es el mismo usuario que se está editando
-    if (dniSnapshot.docs.some(doc => doc.id !== excludeId)) {
-      return { error: 'El DNI ya está registrado.' };
-    }
-    if (fichaSnapshot.docs.some(doc => doc.id !== excludeId)) {
+    if (fichaSnapshot.docs.some((doc) => doc.id !== excludeId)) {
       return { error: 'El número de ficha ya está registrado.' };
     }
 
-    return { error: null }; // Si no hay conflictos
+    return { error: null };
+  };
+
+  const checkIfDniExists = async (dni, excludeId = null) => {
+    const qDni = query(usersCollection, where('dni', '==', dni));
+    const dniSnapshot = await getDocs(qDni);
+
+    if (dniSnapshot.docs.some((doc) => doc.id !== excludeId)) {
+      return { error: 'El DNI ya está registrado.' };
+    }
+
+    return { error: null };
   };
 
   const addUser = async () => {
@@ -69,9 +77,15 @@ const CrudApp = () => {
       return;
     }
 
-    const { error } = await checkIfExists(newUser.dni, newUser.ficha);
-    if (error) {
-      setErrors({ ...newErrors, ficha: error });
+    const dniCheck = await checkIfDniExists(newUser.dni);
+    if (dniCheck.error) {
+      setErrors({ ...newErrors, dni: dniCheck.error });
+      return;
+    }
+
+    const fichaCheck = await checkIfFichaExists(newUser.ficha);
+    if (fichaCheck.error) {
+      setErrors({ ...newErrors, ficha: fichaCheck.error });
       return;
     }
 
@@ -90,9 +104,15 @@ const CrudApp = () => {
       return;
     }
 
-    const { error } = await checkIfExists(editingValue.dni, editingValue.ficha, id);
-    if (error) {
-      setErrors({ ...newErrors, ficha: error });
+    const dniCheck = await checkIfDniExists(editingValue.dni, id);
+    if (dniCheck.error) {
+      setErrors({ ...newErrors, dni: dniCheck.error });
+      return;
+    }
+
+    const fichaCheck = await checkIfFichaExists(editingValue.ficha, id);
+    if (fichaCheck.error) {
+      setErrors({ ...newErrors, ficha: fichaCheck.error });
       return;
     }
 
@@ -132,7 +152,7 @@ const CrudApp = () => {
 
   return (
     <div className="container mt-5">
-      <h1 className="text-center">CRUD App with Firebase</h1>
+      <h1 className="text-center">Aplicativo para turnos medicos</h1>
 
       {/* Formulario para agregar usuarios */}
       <div className="row g-3 mb-3 align-items-center">
@@ -249,17 +269,16 @@ const CrudApp = () => {
                   className="btn btn-warning btn-sm me-2"
                   onClick={() => {
                     setEditingId(user.id);
-                    setEditingValue({
-                      name: user.name,
-                      dni: user.dni,
-                      ficha: user.ficha,
-                    });
+                    setEditingValue(user);
                   }}
                 >
                   Editar
                 </button>
               )}
-              <button className="btn btn-danger btn-sm" onClick={() => deleteUser(user.id)}>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={() => deleteUser(user.id)}
+              >
                 Eliminar
               </button>
             </div>
