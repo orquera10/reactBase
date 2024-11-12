@@ -35,7 +35,7 @@ const UserForm = ({ errors, newUser, setNewUser, addUser }) => (
       </div>
       <div className="col-12 col-md-3">
         <button className="btn btn-primary w-100" onClick={addUser}>
-          Agregar Usuario
+          Agregar Paciente
         </button>
       </div>
     </div>
