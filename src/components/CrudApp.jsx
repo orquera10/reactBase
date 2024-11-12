@@ -123,7 +123,7 @@ const CrudApp = () => {
   
   return (
     <div className="container mt-5">
-      <h1 className="text-center mb-5">Aplicativo para turnos médicos</h1>
+      <h1 className="text-center mb-4">FICHAS MEDICAS</h1>
       <UserForm
         errors={errors}
         newUser={newUser}
