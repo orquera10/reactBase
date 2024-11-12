@@ -15,6 +15,7 @@ import UserForm from './UserForm';
 import UserList from './UserList';
 import SearchBar from './SearchBar';
 import LoadingSpinner from './LoadingSpinner';
+import { orderBy } from 'firebase/firestore';
 
 const CrudApp = () => {
   const [users, setUsers] = useState([]);
@@ -30,7 +31,8 @@ const CrudApp = () => {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const data = await getDocs(usersCollection);
+    const q = query(usersCollection, orderBy('ficha', 'asc')); // Ordenar por número de ficha en orden ascendente
+    const data = await getDocs(q);
     const usersData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
     setUsers(usersData);
     setFilteredUsers(usersData);
