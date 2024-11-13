@@ -10,7 +10,7 @@ const UserList = ({
   updateUser,
   deleteUser,
 }) => (
-  <ul className="list-group">
+  <ul className="list-group mb-5">
     {users.map((user) => (
       <li
         key={user.id}
