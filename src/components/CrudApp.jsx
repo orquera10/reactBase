@@ -90,10 +90,10 @@ const CrudApp = () => {
   };
 
   const checkIfExists = async (field, value, excludeId = null) => {
-    const q = query(usersCollection, where(field, "==", value));
+    const q = query(usersCollection, where(field, "==", value.toUpperCase()));
     const snapshot = await getDocs(q);
     return snapshot.docs.some((doc) => doc.id !== excludeId)
-      ? `El ${field} ya está registrado.`
+      ? `El campo ${field} ya está registrado.`
       : null;
   };
 
@@ -111,9 +111,11 @@ const CrudApp = () => {
       return;
     }
 
-    const dniError = await checkIfExists("dni", newUser.dni);
     const fichaError = await checkIfExists("ficha", newUser.ficha);
+    const dniError = await checkIfExists("dni", newUser.dni);
     const carnetError = await checkIfExists("carnet", newUser.carnet);
+
+    // Agregar validación de ficha repetida
     if (dniError || fichaError || carnetError) {
       setErrors({
         ...newErrors,
@@ -128,12 +130,14 @@ const CrudApp = () => {
     const capitalizedName = capitalizeName(newUser.name);
     const upperCaseFicha = toUpperCase(newUser.ficha);
     const upperCaseObraSocial = toUpperCase(newUser.obraSocial);
+
     await addDoc(usersCollection, {
       ...newUser,
       name: capitalizedName,
       ficha: upperCaseFicha,
       obraSocial: upperCaseObraSocial
     });
+
     fetchUsers();
     setNewUser({ name: "", dni: "", ficha: "", carnet: "", obraSocial: "" });
     setErrors({});
@@ -150,6 +154,8 @@ const CrudApp = () => {
     const dniError = await checkIfExists("dni", editingValue.dni, id);
     const fichaError = await checkIfExists("ficha", editingValue.ficha, id);
     const carnetError = await checkIfExists("carnet", editingValue.carnet, id);
+
+    // Agregar validación de ficha repetida
     if (dniError || fichaError || carnetError) {
       setErrors({
         ...newErrors,
@@ -164,12 +170,14 @@ const CrudApp = () => {
     const capitalizedName = capitalizeName(editingValue.name);
     const upperCaseFicha = toUpperCase(editingValue.ficha);
     const upperCaseObraSocial = toUpperCase(editingValue.obraSocial);
+
     await updateDoc(doc(db, "users", id), {
       ...editingValue,
       name: capitalizedName,
       ficha: upperCaseFicha,
       obraSocial: upperCaseObraSocial
     });
+
     fetchUsers();
     setEditingId(null);
     setErrors({});
@@ -209,7 +217,6 @@ const CrudApp = () => {
       )
     );
   };
-  
 
   return (
     <div className="container mt-5">
@@ -249,4 +256,3 @@ const CrudApp = () => {
 };
 
 export default CrudApp;
-
