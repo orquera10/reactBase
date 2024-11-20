@@ -46,6 +46,9 @@ const CrudApp = () => {
 
   const usersCollection = collection(db, "users");
 
+  // Convertir a mayúsculas
+  const toUpperCase = (str) => str.trim().toUpperCase();
+
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     const q = query(usersCollection, orderBy("ficha", "asc"));
@@ -54,14 +57,14 @@ const CrudApp = () => {
     setUsers(usersData);
     setFilteredUsers(usersData);
     setLoading(false);
-  }, [usersCollection]);
+  }, []);
 
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
       if (user) fetchUsers();
     });
-  }, []);
+  }, [fetchUsers]);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -123,7 +126,12 @@ const CrudApp = () => {
 
     setLoading(true);
     const capitalizedName = capitalizeName(newUser.name);
-    await addDoc(usersCollection, { ...newUser, name: capitalizedName });
+    const upperCaseFicha = toUpperCase(newUser.ficha);
+    await addDoc(usersCollection, {
+      ...newUser,
+      name: capitalizedName,
+      ficha: upperCaseFicha,
+    });
     fetchUsers();
     setNewUser({ name: "", dni: "", ficha: "", carnet: "", obraSocial: "" });
     setErrors({});
@@ -152,9 +160,11 @@ const CrudApp = () => {
 
     setLoading(true);
     const capitalizedName = capitalizeName(editingValue.name);
+    const upperCaseFicha = toUpperCase(editingValue.ficha);
     await updateDoc(doc(db, "users", id), {
       ...editingValue,
       name: capitalizedName,
+      ficha: upperCaseFicha,
     });
     fetchUsers();
     setEditingId(null);
@@ -233,3 +243,4 @@ const CrudApp = () => {
 };
 
 export default CrudApp;
+
