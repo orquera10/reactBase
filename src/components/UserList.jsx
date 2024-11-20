@@ -18,6 +18,7 @@ const UserList = ({
       >
         {editingId === user.id ? (
           <div>
+            {/* Campo Nombre */}
             <input
               type="text"
               className={`form-control mb-1 ${errors.name ? "is-invalid" : ""}`}
@@ -30,6 +31,8 @@ const UserList = ({
             {errors.name && (
               <div className="invalid-feedback">{errors.name}</div>
             )}
+
+            {/* Campo DNI */}
             <input
               type="text"
               className={`form-control mb-1 ${errors.dni ? "is-invalid" : ""}`}
@@ -40,6 +43,8 @@ const UserList = ({
               }
             />
             {errors.dni && <div className="invalid-feedback">{errors.dni}</div>}
+
+            {/* Campo Ficha */}
             <input
               type="text"
               className={`form-control mb-1 ${
@@ -54,19 +59,55 @@ const UserList = ({
             {errors.ficha && (
               <div className="invalid-feedback">{errors.ficha}</div>
             )}
+
+            {/* Campo Carnet */}
+            <input
+              type="text"
+              className={`form-control mb-1 ${
+                errors.carnet ? "is-invalid" : ""
+              }`}
+              placeholder="Carnet"
+              value={editingValue.carnet}
+              onChange={(e) =>
+                setEditingValue({ ...editingValue, carnet: e.target.value })
+              }
+            />
+            {errors.carnet && (
+              <div className="invalid-feedback">{errors.carnet}</div>
+            )}
+
+            {/* Campo Obra Social */}
+            <input
+              type="text"
+              className={`form-control mb-1 ${
+                errors.obraSocial ? "is-invalid" : ""
+              }`}
+              placeholder="Obra Social"
+              value={editingValue.obraSocial}
+              onChange={(e) =>
+                setEditingValue({ ...editingValue, obraSocial: e.target.value })
+              }
+            />
+            {errors.obraSocial && (
+              <div className="invalid-feedback">{errors.obraSocial}</div>
+            )}
           </div>
         ) : (
-          <div className="row" style={{ width: '75%' }}>
+          <div className="row" style={{ width: "75%" }}>
             <div className="col-6">
               <strong>Nombre:</strong> {user.name} <br />
               <strong>DNI:</strong> {user.dni} <br />
+              <strong>Carnet:</strong> {user.carnet || "Sin datos"} <br />
+              <strong>Obra Social:</strong> {user.obraSocial || "Sin datos"} <br />
             </div>
             <div className="col-6 d-flex align-items-center">
-              <strong className="h4 text-success">Ficha: <span className="h4 text-success"> {user.ficha} </span></strong>
-              
+              <strong className="h4 text-success">
+                Ficha: <span className="h4 text-success"> {user.ficha} </span>
+              </strong>
             </div>
           </div>
         )}
+
         <div className="d-flex flex-column flex-md-row align-items-center justify-content-center">
           {editingId === user.id ? (
             <button
@@ -99,3 +140,4 @@ const UserList = ({
 );
 
 export default UserList;
+

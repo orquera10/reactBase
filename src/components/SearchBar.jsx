@@ -6,7 +6,7 @@ const SearchBar = ({ searchTerm, handleSearch }) => (
       <input  
         type="text"  
         className="form-control"  
-        placeholder="Buscar por Nombre, DNI o Ficha"  
+        placeholder="Buscar por Nombre, DNI, Ficha, Obra Social o Carnet"  
         value={searchTerm}  
         onChange={(e) => handleSearch(e.target.value)}  
       />  

@@ -9,14 +9,14 @@ import {
   doc,
   query,
   where,
+  orderBy,
 } from "firebase/firestore";
-import Swal from "sweetalert2"; // Importar SweetAlert2
+import Swal from "sweetalert2";
 
 import UserForm from "./UserForm";
 import UserList from "./UserList";
 import SearchBar from "./SearchBar";
 import LoadingSpinner from "./LoadingSpinner";
-import { orderBy } from "firebase/firestore";
 import { auth } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import Login from "../components/Login";
@@ -24,12 +24,20 @@ import Login from "../components/Login";
 const CrudApp = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [newUser, setNewUser] = useState({ name: "", dni: "", ficha: "" });
+  const [newUser, setNewUser] = useState({
+    name: "",
+    dni: "",
+    ficha: "",
+    carnet: "",
+    obraSocial: "",
+  });
   const [editingId, setEditingId] = useState(null);
   const [editingValue, setEditingValue] = useState({
     name: "",
     dni: "",
     ficha: "",
+    carnet: "",
+    obraSocial: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -49,7 +57,6 @@ const CrudApp = () => {
   }, [usersCollection]);
 
   useEffect(() => {
-    // Verifica si el usuario está autenticado
     onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
       if (user) fetchUsers();
@@ -72,8 +79,10 @@ const CrudApp = () => {
     else if (isNaN(user.dni)) newErrors.dni = "El DNI debe ser numérico.";
     if (!user.ficha.trim())
       newErrors.ficha = "El número de ficha es obligatorio.";
-    else if (isNaN(user.ficha))
-      newErrors.ficha = "El número de ficha debe ser numérico.";
+    if (!user.carnet.trim())
+      newErrors.carnet = "El número de carnet es obligatorio.";
+    if (!user.obraSocial.trim())
+      newErrors.obraSocial = "La obra social es obligatoria.";
     return newErrors;
   };
 
@@ -85,12 +94,11 @@ const CrudApp = () => {
       : null;
   };
 
-  // Función para capitalizar la primera letra de cada palabra en el nombre
   const capitalizeName = (name) => {
     return name
-      .split(" ") // Divide el nombre en palabras
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Capitaliza la primera letra de cada palabra
-      .join(" "); // Une las palabras de nuevo en un solo string
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   };
 
   const addUser = async () => {
@@ -102,16 +110,23 @@ const CrudApp = () => {
 
     const dniError = await checkIfExists("dni", newUser.dni);
     const fichaError = await checkIfExists("ficha", newUser.ficha);
-    if (dniError || fichaError) {
-      setErrors({ ...newErrors, dni: dniError, ficha: fichaError });
+    const carnetError = await checkIfExists("carnet", newUser.carnet);
+    if (dniError || fichaError || carnetError) {
+      setErrors({
+        ...newErrors,
+        dni: dniError,
+        ficha: fichaError,
+        carnet: carnetError,
+      });
       return;
     }
 
     setLoading(true);
-    const capitalizedName = capitalizeName(newUser.name); // Capitalizar el nombre antes de guardarlo
+    const capitalizedName = capitalizeName(newUser.name);
     await addDoc(usersCollection, { ...newUser, name: capitalizedName });
     fetchUsers();
-    setNewUser({ name: "", dni: "", ficha: "" });
+    setNewUser({ name: "", dni: "", ficha: "", carnet: "", obraSocial: "" });
+    setErrors({});
     setLoading(false);
   };
 
@@ -124,28 +139,37 @@ const CrudApp = () => {
 
     const dniError = await checkIfExists("dni", editingValue.dni, id);
     const fichaError = await checkIfExists("ficha", editingValue.ficha, id);
-    if (dniError || fichaError) {
-      setErrors({ ...newErrors, dni: dniError, ficha: fichaError });
+    const carnetError = await checkIfExists("carnet", editingValue.carnet, id);
+    if (dniError || fichaError || carnetError) {
+      setErrors({
+        ...newErrors,
+        dni: dniError,
+        ficha: fichaError,
+        carnet: carnetError,
+      });
       return;
     }
 
     setLoading(true);
-    const capitalizedName = capitalizeName(editingValue.name); // Capitalizar el nombre antes de actualizar
-    await updateDoc(doc(db, "users", id), { ...editingValue, name: capitalizedName });
+    const capitalizedName = capitalizeName(editingValue.name);
+    await updateDoc(doc(db, "users", id), {
+      ...editingValue,
+      name: capitalizedName,
+    });
     fetchUsers();
     setEditingId(null);
+    setErrors({});
     setLoading(false);
   };
 
   const deleteUser = async (id) => {
-    // Mostrar un mensaje de confirmación con SweetAlert2 antes de eliminar
     const result = await Swal.fire({
-      title: '¿Estás seguro?',
+      title: "¿Estás seguro?",
       text: "No podrás revertir esta acción.",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
     });
 
     if (result.isConfirmed) {
@@ -162,9 +186,11 @@ const CrudApp = () => {
     setFilteredUsers(
       users.filter(
         (user) =>
-          user.name.toLowerCase().includes(lowerCaseTerm) ||
-          user.dni.includes(lowerCaseTerm) ||
-          user.ficha.includes(lowerCaseTerm)
+          (user.name || "").toLowerCase().includes(lowerCaseTerm) ||
+          (user.dni || "").includes(lowerCaseTerm) ||
+          (user.ficha || "").includes(lowerCaseTerm) ||
+          (user.carnet || "").includes(lowerCaseTerm) ||
+          (user.obraSocial || "").toLowerCase().includes(lowerCaseTerm)
       )
     );
   };
@@ -174,11 +200,16 @@ const CrudApp = () => {
       <button
         onClick={handleLogout}
         className="btn btn-danger rounded-circle position-absolute top-0 end-0 m-3"
-        style={{ width: '50px', height: '50px', fontSize: '24px', padding: '0' }}
+        style={{
+          width: "50px",
+          height: "50px",
+          fontSize: "24px",
+          padding: "0",
+        }}
       >
         <i className="fas fa-sign-out-alt"></i>
       </button>
-      <h1 className="text-center mb-4">FICHAS MEDICAS</h1>
+      <h1 className="text-center mb-4">FICHAS MÉDICAS</h1>
       <UserForm
         errors={errors}
         newUser={newUser}
