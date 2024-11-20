@@ -97,8 +97,8 @@ const UserList = ({
             <div className="col-6">
               <strong>Nombre:</strong> {user.name} <br />
               <strong>DNI:</strong> {user.dni} <br />
-              <strong>Carnet:</strong> {user.carnet || "Sin datos"} <br />
-              <strong>Obra Social:</strong> {user.obraSocial || "Sin datos"} <br />
+              <strong>Carnet:</strong> {user.carnet} <br />
+              <strong>Obra Social:</strong> {user.obraSocial} <br />
             </div>
             <div className="col-6 d-flex align-items-center">
               <strong className="h4 text-success">

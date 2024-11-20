@@ -127,10 +127,12 @@ const CrudApp = () => {
     setLoading(true);
     const capitalizedName = capitalizeName(newUser.name);
     const upperCaseFicha = toUpperCase(newUser.ficha);
+    const upperCaseObraSocial = toUpperCase(newUser.obraSocial);
     await addDoc(usersCollection, {
       ...newUser,
       name: capitalizedName,
       ficha: upperCaseFicha,
+      obraSocial: upperCaseObraSocial
     });
     fetchUsers();
     setNewUser({ name: "", dni: "", ficha: "", carnet: "", obraSocial: "" });
@@ -161,10 +163,12 @@ const CrudApp = () => {
     setLoading(true);
     const capitalizedName = capitalizeName(editingValue.name);
     const upperCaseFicha = toUpperCase(editingValue.ficha);
+    const upperCaseObraSocial = toUpperCase(editingValue.obraSocial);
     await updateDoc(doc(db, "users", id), {
       ...editingValue,
       name: capitalizedName,
       ficha: upperCaseFicha,
+      obraSocial: upperCaseObraSocial
     });
     fetchUsers();
     setEditingId(null);
@@ -193,17 +197,19 @@ const CrudApp = () => {
   const handleSearch = (term) => {
     setSearchTerm(term);
     const lowerCaseTerm = term.toLowerCase();
+  
     setFilteredUsers(
       users.filter(
         (user) =>
           (user.name || "").toLowerCase().includes(lowerCaseTerm) ||
           (user.dni || "").includes(lowerCaseTerm) ||
           (user.ficha || "").includes(lowerCaseTerm) ||
-          (user.carnet || "").includes(lowerCaseTerm) ||
+          (user.carnet || "").toLowerCase().includes(lowerCaseTerm) ||  // Asegúrate de que carnet esté en minúsculas para la comparación
           (user.obraSocial || "").toLowerCase().includes(lowerCaseTerm)
       )
     );
   };
+  
 
   return (
     <div className="container mt-5">
