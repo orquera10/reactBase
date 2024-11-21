@@ -91,6 +91,17 @@ const UserList = ({
             {errors.obraSocial && (
               <div className="invalid-feedback">{errors.obraSocial}</div>
             )}
+
+            {/* Campo Teléfono */}
+            <input
+              type="text"
+              className="form-control mb-1"
+              placeholder="Teléfono (opcional)"
+              value={editingValue.telefono}
+              onChange={(e) =>
+                setEditingValue({ ...editingValue, telefono: e.target.value })
+              }
+            />
           </div>
         ) : (
           <div className="row" style={{ width: "75%" }}>
@@ -99,6 +110,7 @@ const UserList = ({
               <strong>DNI:</strong> {user.dni} <br />
               <strong>Carnet:</strong> {user.carnet} <br />
               <strong>Obra Social:</strong> {user.obraSocial} <br />
+              <strong>Teléfono:</strong> {user.telefono || "N/A"} <br />
             </div>
             <div className="col-6 d-flex align-items-center">
               <strong className="h4 text-success">
@@ -140,4 +152,5 @@ const UserList = ({
 );
 
 export default UserList;
+
 

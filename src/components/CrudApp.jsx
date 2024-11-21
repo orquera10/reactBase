@@ -30,6 +30,7 @@ const CrudApp = () => {
     ficha: "",
     carnet: "",
     obraSocial: "",
+    telefono: "", // Nuevo campo
   });
   const [editingId, setEditingId] = useState(null);
   const [editingValue, setEditingValue] = useState({
@@ -38,6 +39,7 @@ const CrudApp = () => {
     ficha: "",
     carnet: "",
     obraSocial: "",
+    telefono: "", // Nuevo campo
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -78,14 +80,8 @@ const CrudApp = () => {
   const validateFields = (user) => {
     const newErrors = {};
     if (!user.name.trim()) newErrors.name = "El nombre es obligatorio.";
-    if (!user.dni.trim()) newErrors.dni = "El DNI es obligatorio.";
-    else if (isNaN(user.dni)) newErrors.dni = "El DNI debe ser numérico.";
     if (!user.ficha.trim())
       newErrors.ficha = "El número de ficha es obligatorio.";
-    if (!user.carnet.trim())
-      newErrors.carnet = "El número de carnet es obligatorio.";
-    if (!user.obraSocial.trim())
-      newErrors.obraSocial = "La obra social es obligatoria.";
     return newErrors;
   };
 
@@ -112,16 +108,11 @@ const CrudApp = () => {
     }
 
     const fichaError = await checkIfExists("ficha", newUser.ficha);
-    const dniError = await checkIfExists("dni", newUser.dni);
-    const carnetError = await checkIfExists("carnet", newUser.carnet);
 
-    // Agregar validación de ficha repetida
-    if (dniError || fichaError || carnetError) {
+    if (fichaError) {
       setErrors({
         ...newErrors,
-        dni: dniError,
         ficha: fichaError,
-        carnet: carnetError,
       });
       return;
     }
@@ -139,7 +130,14 @@ const CrudApp = () => {
     });
 
     fetchUsers();
-    setNewUser({ name: "", dni: "", ficha: "", carnet: "", obraSocial: "" });
+    setNewUser({
+      name: "",
+      dni: "",
+      ficha: "",
+      carnet: "",
+      obraSocial: "",
+      telefono: "",
+    });
     setErrors({});
     setLoading(false);
   };
@@ -151,17 +149,12 @@ const CrudApp = () => {
       return;
     }
 
-    const dniError = await checkIfExists("dni", editingValue.dni, id);
     const fichaError = await checkIfExists("ficha", editingValue.ficha, id);
-    const carnetError = await checkIfExists("carnet", editingValue.carnet, id);
 
-    // Agregar validación de ficha repetida
-    if (dniError || fichaError || carnetError) {
+    if (fichaError) {
       setErrors({
         ...newErrors,
-        dni: dniError,
         ficha: fichaError,
-        carnet: carnetError,
       });
       return;
     }
@@ -205,15 +198,16 @@ const CrudApp = () => {
   const handleSearch = (term) => {
     setSearchTerm(term);
     const lowerCaseTerm = term.toLowerCase();
-  
+
     setFilteredUsers(
       users.filter(
         (user) =>
           (user.name || "").toLowerCase().includes(lowerCaseTerm) ||
           (user.dni || "").includes(lowerCaseTerm) ||
           (user.ficha || "").includes(lowerCaseTerm) ||
-          (user.carnet || "").toLowerCase().includes(lowerCaseTerm) ||  // Asegúrate de que carnet esté en minúsculas para la comparación
-          (user.obraSocial || "").toLowerCase().includes(lowerCaseTerm)
+          (user.carnet || "").toLowerCase().includes(lowerCaseTerm) ||
+          (user.obraSocial || "").toLowerCase().includes(lowerCaseTerm) ||
+          (user.telefono || "").toLowerCase().includes(lowerCaseTerm) // Nuevo campo incluido en la búsqueda
       )
     );
   };

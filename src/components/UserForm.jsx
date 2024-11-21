@@ -5,7 +5,7 @@ const UserForm = ({ errors, newUser, setNewUser, addUser }) => (
     <div className="row g-3 align-items-center">
 
       {/* Campo Ficha */}
-      <div className="col-12 col-md-2">
+      <div className="col-12 col-md-1">
         <input
           type="text"
           className={`form-control ${errors.ficha ? "is-invalid" : ""}`}
@@ -53,17 +53,28 @@ const UserForm = ({ errors, newUser, setNewUser, addUser }) => (
       </div>
 
       {/* Campo Obra Social */}
-      <div className="col-12 col-md-2">
+      <div className="col-12 col-md-1">
         <input
           type="text"
           className={`form-control ${errors.obraSocial ? "is-invalid" : ""}`}
-          placeholder="Obra Social"
+          placeholder="O. Social"
           value={newUser.obraSocial}
           onChange={(e) => setNewUser({ ...newUser, obraSocial: e.target.value })}
         />
         {errors.obraSocial && (
           <div className="invalid-feedback">{errors.obraSocial}</div>
         )}
+      </div>
+
+      {/* Campo Teléfono */}
+      <div className="col-12 col-md-2">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Teléfono"
+          value={newUser.telefono}
+          onChange={(e) => setNewUser({ ...newUser, telefono: e.target.value })}
+        />
       </div>
 
       {/* Botón Agregar */}
@@ -77,5 +88,4 @@ const UserForm = ({ errors, newUser, setNewUser, addUser }) => (
 );
 
 export default UserForm;
-
 
